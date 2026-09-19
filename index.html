@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NASA Space Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static_assets', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="sky-effects" aria-hidden="true">
+      <span class="shooting-star shooting-star--one"></span>
+      <span class="shooting-star shooting-star--two"></span>
+      <span class="shooting-star shooting-star--three"></span>
+    </div>
+    <dialog class="image-viewer" id="image-viewer" aria-labelledby="image-viewer-title">
+      <div class="image-viewer__bar">
+        <p id="image-viewer-title">Full image</p>
+        <button class="image-viewer__close" type="button" aria-label="Close full image">Close</button>
+      </div>
+      <img id="image-viewer-image" alt="" />
+    </dialog>
+    <header class="masthead">
+      <a class="mark" href="#top">NASA Space Explorer</a>
+      <nav class="jump">
+        <a href="#asteroids">Asteroids</a>
+        <a href="#earth">Earth</a>
+        <a href="#search">Search</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="apod" id="apod" aria-labelledby="apod-title">
+        <div class="apod__frame" id="apod-media">
+          <p class="status">Loading today's picture…</p>
+        </div>
+        <div class="apod__text">
+          <p class="apod__date" id="apod-date"></p>
+          <h1 class="apod__title" id="apod-title">Picture of the day</h1>
+          <p class="apod__body" id="apod-explanation"></p>
+          <p class="apod__credit" id="apod-credit"></p>
+        </div>
+      </section>  
+    </main>
+
+    <footer class="colophon">
+      <p>Data from the NASA open APIs. Built with Flask.</p>
+      <a href="https://api.nasa.gov">api.nasa.gov</a>
+    </footer>
+
+    <script src="{{ url_for('static_assets', filename='js/main.js') }}"></script>
+  </body>
+</html>

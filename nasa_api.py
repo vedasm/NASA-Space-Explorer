@@ -1,0 +1,51 @@
+# System Imports
+import os
+import time
+from datetime import date
+
+# API Imports
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv("NASA_API_KEY", "TEST_KEY")
+TIMEOUT = 10
+
+session = requests.Session()
+_cache = {}
+
+def _cached(key, ttl_seconds, loader):
+    cached_entry = _cache.get(key)
+    if cached_entry and time.time() - cached_entry["stored_at"] < ttl_seconds:
+        return cached_entry["value"]
+
+    value = loader()
+    _cache[key] = {"value": value, "stored_at": time.time()}
+    return value
+
+
+def _get(url, params):
+    params = dict(params, api_key=API_KEY)
+    response = session.get(url, params=params, timeout=TIMEOUT)
+    response.raise_for_status()
+    return response.json()
+
+
+def _fetch_apod():
+    data = _get("https://api.nasa.gov/planetary/apod", {})
+    return {
+        "title": data.get("title", "Untitled"),
+        "explanation": data.get("explanation", ""),
+        "url": data.get("url", ""),
+        "hdurl": data.get("hdurl"),
+        "media_type": data.get("media_type", "image"),
+        "date": data.get("date", ""),
+        "copyright": data.get("copyright"),
+    }
+
+
+def get_apod():
+    return _cached("apod", 3600, _fetch_apod)
+
+
