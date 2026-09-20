@@ -209,6 +209,49 @@ epicForm.addEventListener("submit", async (event) => {
   }
 });
 
+const searchForm = document.querySelector("#search-form");
+const searchResults = document.querySelector("#search-results");
+
+searchForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const query = document.querySelector("#search-input").value.trim();
+  if (!query) return;
+
+  const button = searchForm.querySelector("button");
+  button.disabled = true;
+  searchResults.innerHTML = `<p class="status">Searching…</p>`;
+
+  try {
+    const data = await requestJson(`/api/search?q=${encodeURIComponent(query)}`);
+
+    if (data.results.length === 0) {
+      searchResults.innerHTML = `<p class="notice">Nothing matched "${escapeHtml(query)}".
+        Try a broader word.</p>`;
+      return;
+    }
+
+    searchResults.innerHTML = data.results
+      .map(
+        (item) => `
+          <div class="shot">
+            <figure>
+              <img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title)}" loading="lazy" />
+              <figcaption>
+                ${escapeHtml(item.title)}
+                <span class="meta">${escapeHtml([item.center, item.date].filter(Boolean).join(" "))}</span>
+              </figcaption>
+            </figure>
+          </div>`
+      )
+      .join("");
+  } catch (error) {
+    showError(searchResults, error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+
 bindMagnetic();
 loadAsteroids();
 loadApod();

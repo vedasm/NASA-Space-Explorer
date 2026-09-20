@@ -95,9 +95,38 @@ def _fetch_epic_images(selected_date):
     ]
 
 def get_epic_images(selected_date):
-    return _cached(
-        f"epic:{selected_date}", 86400, lambda: _fetch_epic_images(selected_date)
+    return _cached(f"epic:{selected_date}", 86400, lambda: _fetch_epic_images(selected_date))
+
+def _fetch_images(query, limit):
+    response = session.get(
+        "https://images-api.nasa.gov/search",
+        params={"q": query, "media_type": "image"},
+        timeout=TIMEOUT,
     )
+    response.raise_for_status()
+    items = response.json().get("collection", {}).get("items", [])
+
+    results = []
+    for item in items[:limit]:
+        meta = (item.get("data") or [{}])[0]
+        links = item.get("links") or []
+        if not links:
+            continue
+        results.append(
+            {
+                "title": meta.get("title", "Untitled"),
+                "description": (meta.get("description") or "")[:240],
+                "center": meta.get("center", ""),
+                "date": (meta.get("date_created") or "")[:10],
+                "thumb": links[0].get("href"),
+            }
+        )
+    return results
+
+
+def search_images(query, limit=12):
+    key = f"search:{query.lower()}:{limit}"
+    return _cached(key, 1800, lambda: _fetch_images(query, limit))
 
 def get_asteroids():
     return _cached("asteroids", 3600, _fetch_asteroids)

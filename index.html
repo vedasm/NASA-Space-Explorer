@@ -72,6 +72,24 @@
         </form>
         <div class="gallery" id="epic-results"></div>
       </section>
+      <section class="panel" id="search" aria-labelledby="search-heading">
+        <div class="panel__head">
+          <h2 id="search-heading">Search the NASA image library</h2>
+          <p class="panel__note">Six decades of mission photography, by keyword.</p>
+        </div>
+        <form class="controls" id="search-form">
+          <label for="search-input">Keyword</label>
+          <input
+            type="search"
+            id="search-input"
+            name="q"
+            placeholder="Saturn, Apollo 11, nebula…"
+            autocomplete="off"
+          />
+          <button type="submit">Search</button>
+        </form>
+        <div class="gallery" id="search-results"></div>
+      </section>
     </main>
 
     <footer class="colophon">
