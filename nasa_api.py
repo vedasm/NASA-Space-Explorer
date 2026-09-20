@@ -78,6 +78,26 @@ def _fetch_asteroids():
     asteroids.sort(key=lambda asteroid: asteroid["miss_distance_km"])
     return {"date": today, "count": len(asteroids), "asteroids": asteroids}
 
+def _fetch_epic_images(selected_date):
+    data = _get(f"https://api.nasa.gov/EPIC/api/natural/date/{selected_date}", {})
+    year, month, day = selected_date.split("-")
+    return [
+        {
+            "name": item["image"],
+            "caption": item.get("caption", ""),
+            "timestamp": item.get("date", ""),
+            "url": (
+                "https://epic.gsfc.nasa.gov/archive/natural/"
+                f"{year}/{month}/{day}/png/{item['image']}.png"
+            ),
+        }
+        for item in data
+    ]
+
+def get_epic_images(selected_date):
+    return _cached(
+        f"epic:{selected_date}", 86400, lambda: _fetch_epic_images(selected_date)
+    )
 
 def get_asteroids():
     return _cached("asteroids", 3600, _fetch_asteroids)

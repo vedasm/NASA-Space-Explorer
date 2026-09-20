@@ -55,9 +55,8 @@ function bindMagnetic(root = document) {
   });
 }
 
-bindMagnetic();
-
 function escapeHtml(text) {
+  
   const box = document.createElement("div");
   box.textContent = text ?? "";
   return box.innerHTML;
@@ -168,5 +167,48 @@ async function loadAsteroids() {
   }
 }
 
+const epicForm = document.querySelector("#epic-form");
+const epicResults = document.querySelector("#epic-results");
+
+epicForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const chosen = document.querySelector("#epic-date").value;
+  const button = epicForm.querySelector("button");
+
+  button.disabled = true;
+  epicResults.innerHTML = `<p class="status">Looking for images from ${escapeHtml(chosen)}…</p>`;
+
+  try {
+    const data = await requestJson(`/api/epic?date=${encodeURIComponent(chosen)}`);
+
+    if (data.images.length === 0) {
+      epicResults.innerHTML = `<p class="notice">No images that day. EPIC skips some
+        dates, so try one a few days earlier.</p>`;
+      return;
+    }
+
+    epicResults.innerHTML = data.images
+      .map(
+        (image) => `
+          <div class="shot">
+            <figure>
+              <img src="${escapeHtml(image.url)}" alt="Earth on ${escapeHtml(chosen)}" loading="lazy" />
+              <figcaption>
+                ${escapeHtml(image.caption)}
+                <span class="meta">${escapeHtml(image.timestamp)}</span>
+              </figcaption>
+            </figure>
+          </div>`
+      )
+      .join("");
+  } catch (error) {
+    showError(epicResults, error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+bindMagnetic();
 loadAsteroids();
 loadApod();

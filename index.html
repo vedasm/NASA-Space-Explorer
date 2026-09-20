@@ -56,11 +56,27 @@
           <p class="status">Checking the neighbourhood…</p>
         </div>
       </section>
+
+      <section class="panel" id="earth" aria-labelledby="earth-heading">
+        <div class="panel__head">
+          <h2 id="earth-heading">Earth from a million miles away</h2>
+          <p class="panel__note">
+            The EPIC camera on DSCOVR photographs the sunlit face of Earth
+            roughly every two hours.
+          </p>
+        </div>
+        <form class="controls" id="epic-form">
+          <label for="epic-date">Date</label>
+          <input type="date" id="epic-date" name="date" value="{{ today }}" max="{{ today }}">
+          <button type="submit">Show Images</button>
+        </form>
+        <div class="gallery" id="epic-results"></div>
+      </section>
     </main>
 
     <footer class="colophon">
       <p>Data from the NASA open APIs. Built with Flask.</p>
-      <a href="https://api.nasa.gov">api.nasa.gov</a>
+      <a>© 2026</a>
     </footer>
 
     <script src="{{ url_for('static_assets', filename='js/main.js') }}"></script>

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 import requests
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
-from nasa_api import get_apod, get_asteroids
+from nasa_api import get_apod, get_asteroids, get_epic_images
 
 app = Flask(__name__, template_folder=".", static_folder=None)
 
@@ -41,6 +41,19 @@ def apod():
 @app.route("/api/asteroids")
 def asteroids():
     return api_response(get_asteroids)
+
+def epic_data(selected):
+    return {"date": selected, "images": get_epic_images(selected)}
+
+@app.route("/api/epic")
+def epic():
+    selected = request.args.get("date", "")
+    try:
+        datetime.strptime(selected, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"error": "Pick a date in YYYY-MM-DD format."}), 400
+
+    return api_response(epic_data, selected)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

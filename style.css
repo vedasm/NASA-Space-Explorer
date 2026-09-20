@@ -537,3 +537,44 @@ img {
   font-weight: 500;
   color: var(--text);
 }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+.gallery:empty {
+  display: none;
+}
+
+.gallery > p {
+  grid-column: 1 / -1;
+}
+
+.shot figure {
+  margin: 0;
+}
+
+.shot img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--ink-raised);
+  border-radius: 2px;
+}
+
+.shot figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.shot .meta {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
