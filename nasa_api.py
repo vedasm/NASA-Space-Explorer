@@ -24,13 +24,11 @@ def _cached(key, ttl_seconds, loader):
     _cache[key] = {"value": value, "stored_at": time.time()}
     return value
 
-
 def _get(url, params):
     params = dict(params, api_key=API_KEY)
     response = session.get(url, params=params, timeout=TIMEOUT)
     response.raise_for_status()
     return response.json()
-
 
 def _fetch_apod():
     data = _get("https://api.nasa.gov/planetary/apod", {})
@@ -44,8 +42,42 @@ def _fetch_apod():
         "copyright": data.get("copyright"),
     }
 
-
 def get_apod():
     return _cached("apod", 3600, _fetch_apod)
 
+def _fetch_asteroids():
+    today = date.today().isoformat()
+    data = _get(
+        "https://api.nasa.gov/neo/rest/v1/feed",
+        {"start_date": today, "end_date": today},
+    )
 
+    raw = [item for items in data.get("near_earth_objects", {}).values() for item in items]
+    asteroids = []
+    for item in raw:
+        approach = (item.get("close_approach_data") or [{}])[0]
+        asteroids.append(
+            {
+                "id": item.get("id"),
+                "name": item.get("name", "").strip("()"),
+                "hazardous": item.get("is_potentially_hazardous_asteroid", False),
+                "diameter_m": item["estimated_diameter"]["meters"]["estimated_diameter_max"],
+                "miss_distance_km": float(
+                    approach.get("miss_distance", {}).get("kilometers", 0)
+                ),
+                "velocity_kph": float(
+                    approach.get("relative_velocity", {}).get(
+                        "kilometers_per_hour", 0
+                    )
+                ),
+                "approach_time": approach.get("close_approach_date_full", ""),
+                "url": item.get("nasa_jpl_url"),
+            }
+        )
+
+    asteroids.sort(key=lambda asteroid: asteroid["miss_distance_km"])
+    return {"date": today, "count": len(asteroids), "asteroids": asteroids}
+
+
+def get_asteroids():
+    return _cached("asteroids", 3600, _fetch_asteroids)

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 import requests
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory
-from nasa_api import get_apod
+from nasa_api import get_apod, get_asteroids
 
 app = Flask(__name__, template_folder=".", static_folder=None)
 
@@ -37,6 +37,10 @@ def index():
 @app.route("/api/apod")
 def apod():
     return api_response(get_apod)
+
+@app.route("/api/asteroids")
+def asteroids():
+    return api_response(get_asteroids)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

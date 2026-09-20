@@ -1,4 +1,5 @@
 const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const num = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
 function enableParallax() {
   if (motionQuery.matches) return;
@@ -127,4 +128,45 @@ async function loadApod() {
   }
 }
 
+function buildRock(rock) {
+  const link = rock.url
+    ? `<a href="${escapeHtml(rock.url)}" target="_blank" rel="noopener">${escapeHtml(rock.name)}</a>`
+    : escapeHtml(rock.name);
+
+  return `
+    <article class="rock ${rock.hazardous ? "rock--hazard" : ""}">
+      <h3 class="rock__name">${link}</h3>
+      <p class="rock__flag">${rock.hazardous ? "Potentially hazardous" : "No risk"}</p>
+      <p class="rock__stats">
+        <span>Width up to <b>${num.format(rock.diameter_m)} m</b></span>
+        <span>Misses us by <b>${num.format(rock.miss_distance_km)} km</b></span>
+        <span>Travelling <b>${num.format(rock.velocity_kph)} km/h</b></span>
+      </p>
+    </article>
+  `;
+}
+
+async function loadAsteroids() {
+  const list = document.querySelector("#asteroid-list");
+
+  try {
+    const data = await requestJson("/api/asteroids");
+
+    if (data.count === 0) {
+      list.innerHTML = `<p class="notice">Nothing is passing close today.</p>`;
+      return;
+    }
+
+    const risky = data.asteroids.filter((rock) => rock.hazardous).length;
+    document.querySelector("#asteroid-count").textContent =
+      `${data.count} tracked, ${risky} flagged as potentially hazardous. Closest first.`;
+
+    list.innerHTML = data.asteroids.map(buildRock).join("");
+    bindMagnetic(list);
+  } catch (error) {
+    showError(list, error.message);
+  }
+}
+
+loadAsteroids();
 loadApod();
